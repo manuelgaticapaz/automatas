@@ -1,0 +1,30 @@
+{
+  "name": "dfa-simulator",
+  "version": "1.0.0",
+  "description": "Simulador de Autómatas Finitos Determinísticos - Una aplicación web para simular y probar AFDs",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "serve": "npx serve .",
+    "deploy": "gh-pages -d ."
+  },
+  "keywords": [
+    "automata",
+    "finite-state-machine",
+    "dfa",
+    "computer-science",
+    "education",
+    "simulator"
+  ],
+  "author": "Manuel",
+  "license": "MIT",
+  "homepage": "https://github.com/tu-usuario/automatas#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tu-usuario/automatas.git"
+  },
+  "devDependencies": {
+    "gh-pages": "^4.0.0",
+    "serve": "^14.0.0"
+  }
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador y Verificador de Lenguajes Regulares con AFD</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 Analizador y Verificador de Lenguajes Regulares con AFD</h1>
+            <p>Carga archivos de autómatas y verifica si reconocen palabras específicas</p>
+        </header>
+
+        <main>
+            <section class="file-upload-section">
+                <h2>📁 Cargar Archivo de Autómatas</h2>
+                <div class="upload-area">
+                    <input type="file" id="fileInput" accept=".txt" />
+                    <label for="fileInput" class="upload-label">
+                        <span class="upload-icon">📄</span>
+                        <span>Seleccionar archivo .txt</span>
+                    </label>
+                </div>
+                <div class="file-info" id="fileInfo"></div>
+            </section>
+
+            <section class="automata-section" id="automataSection" style="display: none;">
+                <h2>🔧 Autómatas Cargados</h2>
+                <div class="automata-list" id="automataList"></div>
+            </section>
+
+            <section class="test-section" id="testSection" style="display: none;">
+                <h2>🧪 Probar Reconocimiento de Palabras</h2>
+                <div class="test-controls">
+                    <select id="automataSelect">
+                        <option value="">Seleccionar autómata...</option>
+                    </select>
+                    <input type="text" id="wordInput" placeholder="Ingresa la palabra a verificar" />
+                    <button id="testButton">Verificar</button>
+                </div>
+                <div class="result" id="result"></div>
+                <div class="trace" id="trace"></div>
+            </section>
+
+            <section class="example-section">
+                <h2>📋 Formato de Archivo</h2>
+                <div class="example">
+                    <p>El archivo debe seguir este formato:</p>
+                    <pre><code>&lt;IdInfo&gt;:&lt;NombreAutomata&gt;:&lt;Información1&gt;;&lt;Información2&gt;;...;&lt;InformaciónN&gt;
+
+IdInfo puede ser:
+1: Conjunto de estados
+2: Símbolos del alfabeto  
+3: Estado inicial
+4: Estados finales
+5: Transiciones
+
+Ejemplo:
+1:AF04:q0,q1,q2
+2:AF04:a,b
+3:AF04:q0
+4:AF04:q1
+5:AF04:q0,a,q1;q0,b,q2;q1,a,q1;q1,b,q2;q2,a,q1;q2,b,q0</code></pre>
+                </div>
+                <button id="downloadExample">Descargar archivo de ejemplo</button>
+            </section>
+        </main>
+
+        <footer>
+            <p>Desarrollado para el estudio de Autómatas Finitos Determinísticos</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
