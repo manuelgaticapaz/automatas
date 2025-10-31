@@ -18,22 +18,22 @@
                 <h2>📁 Cargar Archivo de Autómatas</h2>
                 <div class="upload-area">
                     <input type="file" id="fileInput" accept=".txt" />
-                        <label for="fileInput" class="upload-label">
-                            <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
-                                <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 13v4h-2v-4H8l4-4 4 4h-3zm1-9V3.5L18.5 9H14z"/>
-                            </svg>
-                            <span>Seleccionar archivo .txt</span>
-                        </label>
+                    <label for="fileInput" class="upload-label">
+                        <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+                            <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 13v4h-2v-4H8l4-4 4 4h-3zm1-9V3.5L18.5 9H14z"/>
+                        </svg>
+                        <span>Seleccionar archivo .txt</span>
+                    </label>
                 </div>
                 <div class="file-info" id="fileInfo"></div>
             </section>
 
-            <section class="automata-section" id="automataSection" style="display: none;">
+            <section class="automata-section hidden" id="automataSection">
                 <h2>🔧 Autómatas Cargados</h2>
                 <div class="automata-list" id="automataList"></div>
             </section>
 
-            <section class="test-section" id="testSection" style="display: none;">
+            <section class="test-section hidden" id="testSection">
                 <h2>🧪 Probar Reconocimiento de Palabras</h2>
                 <div class="test-controls">
                     <select id="automataSelect">
@@ -41,6 +41,7 @@
                     </select>
                     <input type="text" id="wordInput" placeholder="Ingresa la palabra a verificar" />
                     <button id="testButton">Verificar</button>
+                    <button id="clearButton" class="button-secondary">Limpiar</button>
                 </div>
                 <div class="result" id="result"></div>
                 <div class="trace" id="trace"></div>
