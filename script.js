@@ -43,6 +43,16 @@ class DFA {
         let currentState = this.initialState;
         const trace = [currentState];
 
+        // Manejar palabra vacía (epsilon)
+        if (word === "") {
+            const accepted = this.finalStates.has(currentState);
+            return {
+                accepted: accepted,
+                trace: trace,
+                finalState: currentState
+            };
+        }
+
         for (let i = 0; i < word.length; i++) {
             const symbol = word[i];
             const key = `${currentState},${symbol}`;
@@ -98,15 +108,23 @@ class AutomataManager {
         const fileInput = document.getElementById('fileInput');
         const testButton = document.getElementById('testButton');
         const downloadExample = document.getElementById('downloadExample');
+        const clearButton = document.getElementById('clearButton'); // Botón Limpiar
 
         fileInput.addEventListener('change', (e) => this.handleFileUpload(e));
         testButton.addEventListener('click', () => this.testWord());
         downloadExample.addEventListener('click', () => this.downloadExampleFile());
+        clearButton.addEventListener('click', () => this.clearTest()); // Evento Limpiar
     }
 
     handleFileUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
+
+        // Limpiar autómatas y UI anterior
+        this.automata.clear();
+        this.displayAutomata(); // Limpia la lista y el select
+        this.clearTest(); // Limpia los resultados de la prueba
+        document.getElementById('fileInfo').innerHTML = '';
 
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -125,15 +143,17 @@ class AutomataManager {
     parseAutomataFile(content) {
         const lines = content.split('\n').filter(line => line.trim() !== '');
         
-        lines.forEach(line => {
+        lines.forEach((line, index) => {
             const parts = line.split(':');
-            if (parts.length < 3) return;
+            if (parts.length < 3) {
+                console.warn(`Línea ${index + 1} ignorada: formato incorrecto.`);
+                return;
+            };
 
             const idInfo = parts[0].trim();
             const automataName = parts[1].trim();
             const information = parts.slice(2).join(':').trim();
 
-            // Crear autómata si no existe
             if (!this.automata.has(automataName)) {
                 this.automata.set(automataName, new DFA(automataName));
             }
@@ -141,21 +161,13 @@ class AutomataManager {
             const automata = this.automata.get(automataName);
 
             switch (idInfo) {
-                case '1': // Estados
-                    automata.addStates(information);
-                    break;
-                case '2': // Alfabeto
-                    automata.addAlphabet(information);
-                    break;
-                case '3': // Estado inicial
-                    automata.setInitialState(information);
-                    break;
-                case '4': // Estados finales
-                    automata.addFinalStates(information);
-                    break;
-                case '5': // Transiciones
-                    automata.addTransitions(information);
-                    break;
+                case '1': automata.addStates(information); break;
+                case '2': automata.addAlphabet(information); break;
+                case '3': automata.setInitialState(information); break;
+                case '4': automata.addFinalStates(information); break;
+                case '5': automata.addTransitions(information); break;
+                default:
+                     console.warn(`Línea ${index + 1} ignorada: IdInfo '${idInfo}' desconocido.`);
             }
         });
     }
@@ -180,13 +192,11 @@ class AutomataManager {
         this.automata.forEach((automata, name) => {
             const info = automata.getInfo();
             
-            // Agregar al select
             const option = document.createElement('option');
             option.value = name;
             option.textContent = name;
             automataSelect.appendChild(option);
 
-            // Mostrar información del autómata
             const automataCard = document.createElement('div');
             automataCard.className = 'automata-card';
             automataCard.innerHTML = `
@@ -210,28 +220,37 @@ class AutomataManager {
         const resultDiv = document.getElementById('result');
         const traceDiv = document.getElementById('trace');
 
-        if (!automataName) {
-            this.showError('Selecciona un autómata');
-            return;
-        }
+        // Limpiar resultados anteriores
+        resultDiv.innerHTML = '';
+        traceDiv.innerHTML = '';
 
-        if (!word) {
-            this.showError('Ingresa una palabra para verificar');
+        if (!automataName) {
+            this.showTestError('Selecciona un autómata');
             return;
         }
 
         const automata = this.automata.get(automataName);
         if (!automata.isComplete()) {
-            this.showError('El autómata seleccionado está incompleto');
+            this.showTestError('El autómata seleccionado está incompleto');
             return;
         }
+
+        // --- VALIDACIÓN DEL ALFABETO ---
+        const alphabet = automata.alphabet;
+        for (const symbol of word) {
+            if (!alphabet.has(symbol)) {
+                this.showTestError(`El símbolo '<strong>${symbol}</strong>' no pertenece al alfabeto del autómata {${Array.from(alphabet).join(', ')}}.`);
+                return; // Detener ejecución
+            }
+        }
+        // --- FIN DE VALIDACIÓN ---
 
         const result = automata.recognize(word);
         
         resultDiv.innerHTML = `
             <div class="${result.accepted ? 'success' : 'error'}">
                 <h3>${result.accepted ? '✅ ACEPTADA' : '❌ RECHAZADA'}</h3>
-                <p>La palabra "<strong>${word}</strong>" ${result.accepted ? 'es reconocida' : 'no es reconocida'} por el autómata <strong>${automataName}</strong></p>
+                <p>La palabra "<strong>${word || 'ε'}</strong>" ${result.accepted ? 'es reconocida' : 'no es reconocida'} por el autómata <strong>${automataName}</strong></p>
                 ${result.error ? `<p class="error-detail">${result.error}</p>` : ''}
                 ${result.finalState ? `<p>Estado final: <strong>${result.finalState}</strong></p>` : ''}
             </div>
@@ -251,6 +270,10 @@ class AutomataManager {
     }
 
     generateTraceSteps(word, trace) {
+        if (word.length === 0) {
+            return `<div class="trace-step">Inicio (palabra vacía): <strong>${trace[0]}</strong></div>`;
+        }
+        
         let steps = [`<div class="trace-step">Inicio: <strong>${trace[0]}</strong></div>`];
         
         for (let i = 0; i < word.length; i++) {
@@ -267,13 +290,29 @@ class AutomataManager {
     }
 
     showSections() {
-        document.getElementById('automataSection').style.display = 'block';
-        document.getElementById('testSection').style.display = 'block';
+        // Se usa classList en lugar de style.display
+        document.getElementById('automataSection').classList.remove('hidden');
+        document.getElementById('testSection').classList.remove('hidden');
     }
 
+    // Muestra errores en el área de carga de archivos
     showError(message) {
         const fileInfo = document.getElementById('fileInfo');
         fileInfo.innerHTML = `<div class="error">❌ ${message}</div>`;
+    }
+
+    // Muestra errores en el área de prueba
+    showTestError(message) {
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = `<div class="error">❌ ${message}</div>`;
+        document.getElementById('trace').innerHTML = ''; // Limpiar traza si hay error
+    }
+
+    // Limpia el área de prueba
+    clearTest() {
+        document.getElementById('wordInput').value = '';
+        document.getElementById('result').innerHTML = '';
+        document.getElementById('trace').innerHTML = '';
     }
 
     downloadExampleFile() {
